@@ -1,17 +1,23 @@
-const express = require('express')
-const morgan = require('morgan')
-const mongoose = require('mongoose')
-const fs = require('fs')
-const MONGO_ATLAS_CONNECTION_STRING = process.env.MONGO_ATLAS_CONNECTION_STRING
-const Blog = require('./models/blog')
-const { get } = require('http')
+import express, { Application } from 'express';
+import {Request, Response, NextFunction} from 'express'
+import morgan from 'morgan'
+import helmet from 'helmet';
+import mongoose, { ConnectOptions } from 'mongoose';
+import fs from 'fs';
+import path from 'path'
+const MONGO_ATLAS_CONNECTION_STRING:string = process.env.MONGO_ATLAS_CONNECTION_STRING;
+import Blog from './models/blog.model'
+import BlogPost from './interfaces/blog-post.interface'
 
 // create app
-const app = express()
+const app:Application = express()
+
+// security headers
+app.use(helmet())
 
 // connect to Mongodb
-mongoose.connect(MONGO_ATLAS_CONNECTION_STRING, {useNewUrlParser:true, useUnifiedTopology:true})
-.then((result)=>{
+mongoose.connect(MONGO_ATLAS_CONNECTION_STRING, {useNewUrlParser:true, useUnifiedTopology:true} as ConnectOptions)
+.then((result) =>{
     console.log('Connected to Mongodb Atlas')
     // listen for requests
     app.listen(3000)
@@ -23,8 +29,11 @@ mongoose.connect(MONGO_ATLAS_CONNECTION_STRING, {useNewUrlParser:true, useUnifie
 // register view engine
 app.set('view engine', 'ejs')
 
+// re-configuring the views directory (no longer default ./views)
+app.set('views', path.join(__dirname, './views'))
+
 // serve static content
-app.use(express.static('public'))
+app.use(express.static(path.join(__dirname, './public')))
 
 // log to console
 app.use(morgan('combined'))
@@ -35,11 +44,11 @@ app.use(morgan('combined', {
 }));
 
 // mongoose and mongo sandbox routes
-/* app.get('/add-blog', (req, res) =>{
+ app.get('/add-blog', (req, res) =>{
     const blog = new Blog({
-        title: 'New Blog',
-        snippet:'This is a test for mongo',
-        body: 'More details about this test blog'
+        title: 'New Blog 2',
+        snippet:'This is a test for mongo 2',
+        body: 'More details about this test blog 2'
     })
 
     blog.save() //save to database
@@ -50,6 +59,7 @@ app.use(morgan('combined', {
     })
 })
 
+/*
 app.get('/all-blogs', (req,res)=>{
     Blog.find() // gets all documents inside the blogs collection
     .then((result)=>{
@@ -66,24 +76,26 @@ app.get('/single-blog',(req,res)=>{
     }).catch((err)=>{console.log(err)})
 }) */
 
+
+
 // routs
-app.get('/', (req, res) => {
+app.get('/', (req:Request, res:Response) => {
     res.redirect('/blogs')
 })
 
-app.get('/about', (req, res) => {
+app.get('/about', (req:Request, res:Response) => {
     res.render('about', { title: 'About' })
 })
 
 // blog routes
-app.get('/blogs/create', (req, res) => {
+app.get('/blogs/create', (req:Request, res:Response) => {
     res.render('create', { title: 'Create a blog post' })
 })
 
 // get all blogs with the find() method. Then render them inside the 'index' view as the property 'blogs'.
-app.get('/blogs', (req, res)=>{
+app.get('/blogs', (req:Request, res:Response) =>{
     Blog.find().sort({createdAt: -1})
-    .then((result)=>{
+    .then((result:BlogPost[])=>{
         res.render('index', { title: 'All blogs', blogs:result })
     })
     .catch((err)=>{
@@ -91,7 +103,7 @@ app.get('/blogs', (req, res)=>{
     })
 })
 
-app.use((req, res) => {
+app.use((req:Request, res:Response) => {
     res.status(404).render('404', { title: '404' })
 })
 

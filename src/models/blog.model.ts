@@ -1,9 +1,11 @@
-const mongoose = require('mongoose')
-const Schema = mongoose.Schema; //constructor function to create a new schema
+import {model, Schema} from 'mongoose'
+import { BlogModel } from "../interfaces/blog-model.interface";
+
+//const Schema = mongoose.Schema; //constructor function to create a new schema
 
 
 //create schema
-const blogSchema = new Schema({
+const blogSchema: Schema = new Schema({
     title: {
         type: String,
         required: true
@@ -17,12 +19,11 @@ const blogSchema = new Schema({
         required: true
     }
 }, 
-{timestamps: true
+{
+    timestamps: true
 })
 
 //create model based on schema
 //because the use of 'Blog' mongoose will automatically search for a collection called blogs, we don't have to pass it.
-const Blog = mongoose.model('Blog', blogSchema)
-
-module.exports = Blog;
+export default model<BlogModel>('Blog', blogSchema);
 
