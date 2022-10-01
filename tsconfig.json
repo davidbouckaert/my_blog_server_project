@@ -13,5 +13,5 @@
     "allowSyntheticDefaultImports": true,             /* this fixed the error:  Module 'XYZ' has no default export.*/
     "esModuleInterop": true                           /* this fixed the error: const app = express() TypeError: (0 , express_1.default) is not a function*/
   },
-  "include": ["./src/**/*.ts"]
+  "include": ["./src/**/*.ts", "src/script.js"]
 }

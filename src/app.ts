@@ -8,7 +8,7 @@ import path from 'path'
 const MONGO_ATLAS_CONNECTION_STRING:string = process.env.MONGO_ATLAS_CONNECTION_STRING;
 import Blog from './models/blog.model'
 import BlogPost from './interfaces/blog-post.interface'
-import { BlogModel } from './interfaces/blog-model.interface';
+import blogRoutes from './routes/blogRoutes';
 
 // create app
 const app:Application = express()
@@ -57,70 +57,11 @@ app.get('/about', (req:Request, res:Response) => {
 })
 
 // blog routes
-// get all blogs with the find() method. Then render them inside the 'index' view as the property 'blogs'.
-app.get('/blogs', (req:Request, res:Response) =>{
-    Blog.find().sort({createdAt: -1})
-    .then((result:BlogPost[])=>{
-        res.render('index', { title: 'All blogs', blogs:result })
-    })
-    .catch((err)=>{
-        console.log(err)
-    })
-})
+// importing all routes from external (router) file
+app.use('/blogs',blogRoutes) // scoping these routes to URL with /blogs
 
-app.post('/blogs', (req:Request, res:Response) =>{
-    const blog:BlogModel = new Blog(
-       // title:req.body.title,
-       // snippet:req.body.snippet,
-       // body:req.body.body
-       req.body
-    )
-    blog.save()
-    .then((result)=> {
-        console.log('new blog post created')
-        res.redirect('/blogs')
-    })
-    .catch((err)=>{
-        console.log(err)
-    })
-})
-
-/*app.get('/blogs/:id', (req:Request, res:Response) =>{
-    Blog.findById({id:''}).sort({createdAt: -1})
-    .then((result:BlogPost)=>{
-        res.render('index', { title: 'All blogs', blogs:result })
-    })
-    .catch((err)=>{
-        console.log(err)
-    })
-})
-
-/* app.put('/blogs/:id', (req:Request, res:Response) =>{
-    Blog.findById({id:''}).sort({createdAt: -1})
-    .then((result:BlogPost)=>{
-        res.render('index', { title: 'All blogs', blogs:result })
-    })
-    .catch((err)=>{
-        console.log(err)
-    })
-}) */
-
-/*app.delete('/blogs/:id', (req:Request, res:Response) =>{
-    Blog.findById({id:''}).sort({createdAt: -1})
-    .then((result:BlogPost)=>{
-        res.render('index', { title: 'All blogs', blogs:result })
-    })
-    .catch((err)=>{
-        console.log(err)
-    })
-})*/
-
-app.get('/blogs/create', (req:Request, res:Response) => {
-    res.render('create', { title: 'Create a blog post' })
-})
-
+// 404 route
 app.use((req:Request, res:Response) => {
     res.status(404).render('404', { title: '404' })
 })
-
 
