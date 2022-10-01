@@ -8,6 +8,7 @@ import path from 'path'
 const MONGO_ATLAS_CONNECTION_STRING:string = process.env.MONGO_ATLAS_CONNECTION_STRING;
 import Blog from './models/blog.model'
 import BlogPost from './interfaces/blog-post.interface'
+import { BlogModel } from './interfaces/blog-model.interface';
 
 // create app
 const app:Application = express()
@@ -43,40 +44,8 @@ app.use(morgan('combined', {
     stream: fs.createWriteStream('./access.log', {flags: 'a'})
 }));
 
-// mongoose and mongo sandbox routes
- app.get('/add-blog', (req, res) =>{
-    const blog = new Blog({
-        title: 'New Blog 2',
-        snippet:'This is a test for mongo 2',
-        body: 'More details about this test blog 2'
-    })
-
-    blog.save() //save to database
-    .then((result)=>{
-        res.send(result) //send the response back to the browser
-    }).catch((err)=>{
-        console.log(err)
-    })
-})
-
-/*
-app.get('/all-blogs', (req,res)=>{
-    Blog.find() // gets all documents inside the blogs collection
-    .then((result)=>{
-        res.send(result)
-    }).catch((err)=>{
-        console.log(err)
-    })
-})
-
-app.get('/single-blog',(req,res)=>{
-    Blog.findById('6336f01fdb426d9e05101d54') // gets blog with this ID
-    .then((result)=> {
-        res.send(result)
-    }).catch((err)=>{console.log(err)})
-}) */
-
-
+// this takes all the URL encoded data and passes that into an object (body) that you can use on the request object
+app.use(express.urlencoded({extended:true}))
 
 // routs
 app.get('/', (req:Request, res:Response) => {
@@ -88,10 +57,6 @@ app.get('/about', (req:Request, res:Response) => {
 })
 
 // blog routes
-app.get('/blogs/create', (req:Request, res:Response) => {
-    res.render('create', { title: 'Create a blog post' })
-})
-
 // get all blogs with the find() method. Then render them inside the 'index' view as the property 'blogs'.
 app.get('/blogs', (req:Request, res:Response) =>{
     Blog.find().sort({createdAt: -1})
@@ -101,6 +66,57 @@ app.get('/blogs', (req:Request, res:Response) =>{
     .catch((err)=>{
         console.log(err)
     })
+})
+
+app.post('/blogs', (req:Request, res:Response) =>{
+    const blog:BlogModel = new Blog(
+       // title:req.body.title,
+       // snippet:req.body.snippet,
+       // body:req.body.body
+       req.body
+    )
+    blog.save()
+    .then((result)=> {
+        console.log('new blog post created')
+        res.redirect('/blogs')
+    })
+    .catch((err)=>{
+        console.log(err)
+    })
+})
+
+/*app.get('/blogs/:id', (req:Request, res:Response) =>{
+    Blog.findById({id:''}).sort({createdAt: -1})
+    .then((result:BlogPost)=>{
+        res.render('index', { title: 'All blogs', blogs:result })
+    })
+    .catch((err)=>{
+        console.log(err)
+    })
+})
+
+/* app.put('/blogs/:id', (req:Request, res:Response) =>{
+    Blog.findById({id:''}).sort({createdAt: -1})
+    .then((result:BlogPost)=>{
+        res.render('index', { title: 'All blogs', blogs:result })
+    })
+    .catch((err)=>{
+        console.log(err)
+    })
+}) */
+
+/*app.delete('/blogs/:id', (req:Request, res:Response) =>{
+    Blog.findById({id:''}).sort({createdAt: -1})
+    .then((result:BlogPost)=>{
+        res.render('index', { title: 'All blogs', blogs:result })
+    })
+    .catch((err)=>{
+        console.log(err)
+    })
+})*/
+
+app.get('/blogs/create', (req:Request, res:Response) => {
+    res.render('create', { title: 'Create a blog post' })
 })
 
 app.use((req:Request, res:Response) => {
