@@ -7,7 +7,8 @@ import { Request, Response } from 'express'
 const blog_index = (req: Request, res: Response) => {
     Blog.find().sort({ createdAt: -1 })
         .then((result: BlogPost[]) => {
-            res.render('index', { title: 'All blogs', blogs: result })
+            // .render, by default, is going to look inside the project root for the 'views' folder.
+            res.render('blogs/index', { title: 'All blogs', blogs: result })
         })
         .catch((err) => {
             console.log(err)
@@ -18,14 +19,15 @@ const blog_details = (req: Request, res: Response) => {
     const id: string = req.params.id // get the id from the request params
     Blog.findById(id).sort({ createdAt: -1 })
         .then((result: BlogPost) => {
-            res.render('details', { title: 'Blog details', blog: result })
+            res.render('blogs/details', { title: 'Blog details', blog: result })
         })
         .catch((err) => {
             console.log(err)
+            res.status(404).render('404', { title: '404 Not Found' })
         })
 }
 
-const blog_create_get = (req: Request, res: Response) => { res.render('create', { title: 'Create a blog post' }) }
+const blog_create_get = (req: Request, res: Response) => { res.render('blogs/create', { title: 'Create a blog post' }) }
 
 const blog_create_post = (req: Request, res: Response) => {
     const blog: BlogModel = new Blog(
