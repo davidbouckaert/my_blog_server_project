@@ -10,6 +10,17 @@ import Blog from './models/blog.model'
 import BlogPost from './interfaces/blog-post.interface'
 import blogRoutes from './routes/blogRoutes';
 
+// MVC model:
+// The views are dynamic HTML files that are rendered on the server before sent to the browser
+// Their dynamic content can be created by the logic found in the controller.
+
+// Controllers hold all the logic: they render views and interact with the db, and more...
+
+// Routes listen on certain endpoints and methods.
+// Then they execute a callback function, located inside the controller file
+ 
+// The app.use imports all routes
+
 // create app
 const app:Application = express()
 
